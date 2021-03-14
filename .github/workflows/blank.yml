@@ -1,0 +1,29 @@
+  
+# File: .github/workflows/repo-sync.yml
+name: repo-sync-deploy
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+  repository_dispatch:
+    types: deploy
+jobs:
+  repo-sync:
+    env:
+      PAT: ${{ secrets.PAT }} #此处PAT需要申请，教程详见：https://www.jianshu.com/p/bb82b3ad1d11
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          ref: master
+
+      - name: repo-sync
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://github.com/lxk9301/jd_scripts.git"
+          source_branch: "master"
+          destination_branch: "master"
+          github_token: ${{ secrets.PAT }}
